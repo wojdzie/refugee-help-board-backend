@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const userService = require('./user.service');
 
-// Routes
 router.post('/authenticate', authenticate);
 router.get('/', getAll);
 

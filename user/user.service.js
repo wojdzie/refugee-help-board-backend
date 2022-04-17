@@ -1,16 +1,8 @@
-// Users hardcoded for simplicity, store in a DB for production applications
-const users = [{
-   id: 1,
-   username: 'test',
-   password: 'test',
-   firstName: 'Test',
-   lastName: 'User'
-}];
+const users = [
+    { id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' }
+];
 
-module.exports = {
-    authenticate,
-    getAll
-}
+module.exports = { authenticate, getAll }
 
 async function authenticate({ username, password }) {
     const user = users.find(u => u.username === username && u.password === password);
