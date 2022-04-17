@@ -1,14 +1,25 @@
-const http = require('http');
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const basicAuth = require('./auth/basic-auth');
+const errorHandler = require('./error/error-handler');
 
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+app.use(cors());
+
+// Use basic HTTP authentication to secure the API
+app.use(basicAuth);
+
+// API routes
+app.use('/user', require('./user/user.controller'));
+
+// Global error handler
+app.use(errorHandler);
+
+// Start server
 const port = 8080;
-
-const requestListener = function (req, res) {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end();
-}
-
-const server = http.createServer(requestListener);
-
-server.listen(port, () => {
-    console.log(`Server running at port ${port}`)
-})
+const server = app.listen(port, () => {
+    console.log('Server listening on port ' + port);
+});
