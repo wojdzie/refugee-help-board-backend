@@ -14,6 +14,7 @@ app.use(basicAuth);
 
 // API routes
 app.use('/user', require('./user/user.controller'));
+app.use('/notice', require('./notice/notice.controller'));
 
 // Global error handler
 app.use(errorHandler);

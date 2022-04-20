@@ -1,5 +1,6 @@
 const users = [
-    { id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' }
+    { id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' },
+    { id: 2, username: 'test2', password: 'test2', firstName: 'Test2', lastName: 'User' }
 ];
 
 module.exports = { authenticate, getAll }
