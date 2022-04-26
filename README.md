@@ -5,7 +5,27 @@ It's application to support war refugees in finding help and shelter.
 ## How to run application?
 1. Clone project using `git clone https://github.com/wojdzie/refugee-help-board-backend.git`
 2. In project directory run `npm install` to install dependencies into the `node_modules/` directory.
-3. Run `npm start` to start HTTP server.
+3. Set up DB   
+4. Run `npm start` to start HTTP server.
+   
+## How to set up DB?
+1. Install mongoDB
+2. Type `mongo` in terminal
+3. Switch to admin `use admin`
+4. Create database user
+```javascript
+db.createUser(
+    {
+        user: "admin",
+        pwd: "admin123",
+        roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+    }
+)
+```
+5. Set up properties in `db.js`
+6. Type `exit`
+7. You are ready!
+
 
 ## How to contribute?
 I will show you how to contribute based on get all users feature.

@@ -1,25 +1,24 @@
 const express = require('express');
-const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const basicAuth = require('./auth/basic-auth');
-const errorHandler = require('./error/error-handler');
+
+const basicAuth = require('./app/auth/basic-auth');
+const errorHandler = require('./app/error/error-handler');
+
+const db = require('./db');
+
+const app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+
 app.use(cors());
-
-// Use basic HTTP authentication to secure the API
 app.use(basicAuth);
-
-// API routes
-app.use('/user', require('./user/user.controller'));
-
-// Global error handler
 app.use(errorHandler);
 
-// Start server
+app.use('/user', require('./app/user/user.controller'));
+
 const port = 8080;
-const server = app.listen(port, () => {
+app.listen(port, () => {
     console.log('Server listening on port ' + port);
 });
