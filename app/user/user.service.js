@@ -1,11 +1,15 @@
 const User = require('./user');
 
-async function authenticate({ username, password }) {
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-        const { password, ...userWithoutPassword } = user;
-        return userWithoutPassword;
+exports.authenticate = (data) => {
+    const users = User.find({login: data.login, password: data.password},
+        (err, data) => {
+            return data.map(x => x);
+        });
+    if (users.length === 0 || users.length > 1) {
+        return "Login failed!";
     }
+
+    return btoa(users[0].login + ":" + users[0].password);
 }
 exports.findUserById = (id) => {
     return User.findById(id);
