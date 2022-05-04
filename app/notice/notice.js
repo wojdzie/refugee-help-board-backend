@@ -6,5 +6,6 @@ const Notice = new Schema ({
     type: { type: String, required: true },
     description: { type: String, required: true}
 });
+Notice.index({description: "text"});
 
 module.exports = mongoose.model('Notice', Notice);

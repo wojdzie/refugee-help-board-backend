@@ -5,7 +5,16 @@ function get(filter) {
     return Notice.find(filter);
 }
 
-async function add(data, user) {
+function search(text) {
+    return Notice.find(
+            { $text: { $search: text}}, 
+            { score: { $meta: "textScore" }}
+        ).sort(
+            { score: { $meta: "textScore" }}
+        );
+}
+
+function add(data, user) {
     try {
         data = validateData(data);
     } catch (err) {
@@ -14,7 +23,7 @@ async function add(data, user) {
             message: err.message
         }
     }
-    
+
     notice = new Notice({
         author: user._id,
         type: data.type,
@@ -46,4 +55,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description"]);
 }
 
-module.exports = { get, add }
+module.exports = { get, add, search }

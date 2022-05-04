@@ -5,6 +5,7 @@ const _ = require('lodash');
 
 router.post('/', add);
 router.get('/', get);
+router.get('/search', search);
 
 module.exports = router;
 
@@ -14,6 +15,16 @@ function get(req, res, next) {
         filter = {};
     }
     noticeService.get(filter)
+        .then(notices => res.send(notices))
+        .catch(err => next(err));
+}
+
+function search(req, res, next) {
+    const text = _.get(req, "body.text");
+    if (typeof text !== "string" || text.length === 0)
+        return res.status(400).send({message: "Text is required to perform a search. It is expected in a 'text' field of a request body."})
+
+    noticeService.search(text)
         .then(notices => res.send(notices))
         .catch(err => next(err));
 }
