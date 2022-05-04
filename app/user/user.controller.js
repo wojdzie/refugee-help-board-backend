@@ -6,8 +6,8 @@ router.post('/authenticate', authenticate);
 router.get('/', findUsers);
 router.post('/', createUser);
 router.get('/:id', findUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.patch('/', updateUser);
+router.delete('/', deleteUser);
 
 module.exports = router;
 
@@ -45,16 +45,16 @@ function updateUser(req, res) {
         res.status(400).send({ message: "Content can not be empty!" });
         return;
     }
-    const id = req.params.id;
+    const id = req.user._id;
     userService.updateUser(id, req.body)
         .then(data => res.send({ message: `User with id = ${id} was updated successfully`}))
-        .catch(err => res.status(400).send({ message: `Error updating User with id = ${id}` }));
+        .catch(err => res.status(500).send({ message: `Error updating User with id = ${id}` }));
 }
 
 function deleteUser(req, res) {
-    const id = req.params.id;
+    const id = req.user._id;
     userService.deleteUser(id)
         .then(data => res.send({ message: `User with id = ${id} was deleted successfully` }))
-        .catch(err => res.status(400).send({ message: `Error deleting User with id = ${id}` }));
+        .catch(err => res.status(500).send({ message: `Error deleting User with id = ${id}` }));
 }
 

@@ -1,11 +1,9 @@
 const User = require('./user');
 
 exports.authenticate = async ({ username, password }) => {
-    const user = (await User.find({login: username, password: password}))[0];
-    if (user) {
-        const { password, ...userWithoutPassword } = user;
-        return userWithoutPassword;
-    }
+    const user = await User.findOne({login: username, password: password}, {password: false});
+    if (user) 
+        return user;
 }
 
 exports.findUserById = (id) => {
