@@ -16,6 +16,7 @@ app.use(cors());
 app.use(basicAuth);
 
 app.use('/user', require('./app/user/user.controller'));
+app.use('/notice', require('./app/notice/notice.controller'));
 
 app.use(errorHandler);
 
