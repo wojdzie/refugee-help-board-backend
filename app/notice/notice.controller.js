@@ -3,8 +3,8 @@ const router = express.Router();
 const noticeService = require('./notice.service');
 const _ = require('lodash');
 
-router.post('/add', add);
-router.get('/get', get);
+router.post('/', add);
+router.get('/', get);
 
 module.exports = router;
 
