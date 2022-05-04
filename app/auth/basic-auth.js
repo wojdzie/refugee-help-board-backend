@@ -3,7 +3,8 @@ const userService = require('../user/user.service');
 module.exports = basicAuth;
 
 async function basicAuth(req, res, next) {
-    if (req.path === '/user/authenticate') {
+    if (req.path === '/user/authenticate' ||
+        req.path === '/user/register') {
         return next();
     }
 

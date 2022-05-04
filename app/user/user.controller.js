@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const userService = require('./user.service');
+const _ = require('lodash');
 
 router.post('/authenticate', authenticate);
 router.get('/', findUsers);
-router.post('/', createUser);
+router.post('/register', createUser);
 router.get('/:id', findUser);
 router.patch('/', updateUser);
 router.delete('/', deleteUser);
@@ -37,7 +38,18 @@ function createUser(req, res) {
     }
     userService.createUser(req.body)
         .then(data => res.send(data))
-        .catch(err => res.status(400).send({ message: 'Some error occurred while creating the User' }));
+        .catch(err => {
+            switch (_.get(err, "type")) {
+                case "login-exists":
+                    res.status(400).send({message: "A user with the provided login already exists"});
+                    break;
+                case "incomplete-data":
+                    res.status(400).send({message: "Provided data is incomplete, check the required fields"});
+                    break;
+                default:
+                    res.status(500).send({ message: 'Some error occurred while creating the User' });
+            }
+        });
 }
 
 function updateUser(req, res) {

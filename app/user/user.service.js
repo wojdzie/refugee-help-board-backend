@@ -1,4 +1,5 @@
 const User = require('./user');
+const _ = require('lodash');
 
 exports.authenticate = async ({ username, password }) => {
     const user = await User.findOne({login: username, password: password}, {password: false});
@@ -14,8 +15,20 @@ exports.findUsers = () => {
     return User.find();
 }
 
-exports.createUser = (data) => {
-    const user = new User ({
+exports.createUser = async (data) => {
+    if (!_.has(data, "login") || 
+        !_.has(data, "password"))
+        throw {
+            type: "incomplete-data"
+        }
+
+    let user = await User.findOne({login: data.login});
+    if (user)
+        throw {
+            type: "login-exists"
+        }
+
+    user = new User ({
         login: data.login,
         password: data.password,
         email: data.email,
