@@ -11,8 +11,10 @@ exports.findUserById = (id) => {
     return User.findById(id);
 }
 
-exports.findUsers = () => {
-    return User.find();
+exports.findUsers = (filter) => {
+    //omitting password in the filter as it's a potential vulnerability
+    filter = _.omit(filter, ["password"]);
+    return User.find(filter, {password: false});
 }
 
 exports.createUser = async (data) => {

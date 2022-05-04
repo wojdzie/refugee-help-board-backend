@@ -6,7 +6,7 @@ const _ = require('lodash');
 router.post('/authenticate', authenticate);
 router.get('/', findUsers);
 router.post('/register', createUser);
-router.get('/:id', findUser);
+router.get('/me', findUser);
 router.patch('/', updateUser);
 router.delete('/', deleteUser);
 
@@ -19,16 +19,20 @@ function authenticate(req, res, next) {
 }
 
 function findUser(req, res) {
-    const id = req.params.id;
+    const id = req.user._id;
     userService.findUserById(id)
         .then(data => res.send(data))
         .catch(err => res.status(404).send({ message: `Cannot find User with id = ${id}` }));
 }
 
 function findUsers(req, res) {
-    userService.findUsers()
+    let filter = req.body;
+    if (!req.body) {
+        filter = {};
+    }
+    userService.findUsers(filter)
         .then(data => res.send(data))
-        .catch(err => res.status(404).send({ message: 'Cannot find Users' }));
+        .catch(err => res.status(500).send({ message: `Error fetching the users` }));
 }
 
 function createUser(req, res) {
