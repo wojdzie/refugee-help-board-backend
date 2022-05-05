@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.use(cors());
-//app.use(basicAuth);
+app.use(basicAuth);
 
 app.use('/user', require('./app/user/user.controller'));
 app.use('/notice', require('./app/notice/notice.controller'));
