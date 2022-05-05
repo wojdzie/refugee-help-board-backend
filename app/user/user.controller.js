@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userService = require('./user.service');
+const _ = require('lodash');
 
 router.post('/authenticate', authenticate);
 router.get('/', findUsers);
-router.post('/', createUser);
-router.get('/:id', findUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.post('/register', createUser);
+router.get('/me', findUser);
+router.patch('/', updateUser);
+router.delete('/', deleteUser);
 
 module.exports = router;
 
@@ -18,16 +19,20 @@ function authenticate(req, res, next) {
 }
 
 function findUser(req, res) {
-    const id = req.params.id;
+    const id = req.user._id;
     userService.findUserById(id)
         .then(data => res.send(data))
         .catch(err => res.status(404).send({ message: `Cannot find User with id = ${id}` }));
 }
 
 function findUsers(req, res) {
-    userService.findUsers()
+    let filter = req.body;
+    if (!req.body) {
+        filter = {};
+    }
+    userService.findUsers(filter)
         .then(data => res.send(data))
-        .catch(err => res.status(404).send({ message: 'Cannot find Users' }));
+        .catch(err => res.status(500).send({ message: `Error fetching the users` }));
 }
 
 function createUser(req, res) {
@@ -37,7 +42,18 @@ function createUser(req, res) {
     }
     userService.createUser(req.body)
         .then(data => res.send(data))
-        .catch(err => res.status(400).send({ message: 'Some error occurred while creating the User' }));
+        .catch(err => {
+            switch (_.get(err, "type")) {
+                case "login-exists":
+                    res.status(400).send({message: "A user with the provided login already exists"});
+                    break;
+                case "incomplete-data":
+                    res.status(400).send({message: "Provided data is incomplete, check the required fields"});
+                    break;
+                default:
+                    res.status(500).send({ message: 'Some error occurred while creating the User' });
+            }
+        });
 }
 
 function updateUser(req, res) {
@@ -45,16 +61,16 @@ function updateUser(req, res) {
         res.status(400).send({ message: "Content can not be empty!" });
         return;
     }
-    const id = req.params.id;
+    const id = req.user._id;
     userService.updateUser(id, req.body)
         .then(data => res.send({ message: `User with id = ${id} was updated successfully`}))
-        .catch(err => res.status(400).send({ message: `Error updating User with id = ${id}` }));
+        .catch(err => res.status(500).send({ message: `Error updating User with id = ${id}` }));
 }
 
 function deleteUser(req, res) {
-    const id = req.params.id;
+    const id = req.user._id;
     userService.deleteUser(id)
         .then(data => res.send({ message: `User with id = ${id} was deleted successfully` }))
-        .catch(err => res.status(400).send({ message: `Error deleting User with id = ${id}` }));
+        .catch(err => res.status(500).send({ message: `Error deleting User with id = ${id}` }));
 }
 
