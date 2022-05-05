@@ -1,10 +1,19 @@
 const User = require('./user');
 const _ = require('lodash');
 
-exports.authenticate = async ({ username, password }) => {
-    const user = await User.findOne({login: username, password: password});
-    if (user) 
+exports.authenticate = async ({ login, password }) => {
+    const user = await User.findOne({ login: login, password: password });
+    if (user)
         return user;
+}
+
+exports.login = async ({ login, password }) => {
+    const user = await User.findOne({ login: login, password: password });
+    if (user) {
+        return {
+            "token": "Basic " + btoa(user.login + ":" + user.password)
+        };
+    }
 }
 
 exports.findUserById = (id) => {
