@@ -9,7 +9,7 @@ router.post('/', add);
 router.get('/', get);
 router.get('/search', search);
 router.delete('/:id', remove);
-router.patch('/', update)
+router.patch('/:id', updateNotice);
 
 module.exports = router;
 
@@ -46,26 +46,24 @@ function add(req, res, next) {
 }
 
 function remove(req, res, next) {
-    notice_id = req.params.id;
-    noticeService.remove(notice_id)
-    .then(notice => res.send(notice))
-    .catch(err => {
-        if (_.get(err, "type") === "invalid-input")
-                return res.status(400).json({ 
-                    message: err.message 
-                });
-            next(err);
-        });
+    const noticeID = req.params.id;
+    noticeService.remove(noticeID)
+    .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
+    .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
 }
 
-function update(res, req, next) {
-    noticeService.update(req.body, req.user)
-    .then(notice => res.send(notice))
-    .catch(err => {
-        if (_.get(err, "type") === "invalid-input")
-                return res.status(400).json({ 
-                    message: err.message 
-                });
-            next(err);
-        });
+function updateNotice(req, res) {
+    if (!req.body) {
+        res.status(400).send({ message: "Content can not be empty!" });
+        return;
+    }
+    if(req.body.type){
+        return res
+                .status(400).send({message:'Can only edit description'})
+    }
+    
+    const noticeID = req.params.id;
+    noticeService.updateNotice(noticeID, req.body)
+        .then(data => res.send({ message: `Notice with id = ${noticeID} was updated successfully`}))
+        .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${noticeID}` }));
 }

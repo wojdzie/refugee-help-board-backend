@@ -33,47 +33,12 @@ async function add(data, user) {
     return notice.save(notice);
 }
 
-async function remove(data, user) {
-    try {
-        data = validateData(data);
-    } catch (err) {
-        throw {
-            type: "invalid-input",
-            message: err.message
-        }
-    }
-
-    Notice.find({ author: user._id, type: data.type, description: data.description}, function (err, docs) {
-        //rzuca null narazie. Do zmiany
-        if(docs.length === 0){
-            console.log(err);
-        }else if(err){
-            console.log(err);
-        }else{
-            console.log(docs);
-        }
-        
-        Notice.deleteOne({ author: user._id, type: data.type, description: data.description}, function(err, result){
-            if(err){
-                console.log(err);
-            }else{
-                 return result;
-             }
-          });
-    });
+function remove(notice_id) {
+    return Notice.findByIdAndRemove(notice_id, { useFindAndModify: false });
 }
 
-async function update(data, user){
-    try {
-        data = validateData(data);
-    } catch (err) {
-        throw {
-            type: "invalid-input",
-            message: err.message
-        }
-    }
-
-    
+function updateNotice(notice_id, data){
+    return Notice.findByIdAndUpdate(notice_id, data, { useFindAndModify: false });
 }
 
 function validateData(data) {
@@ -98,4 +63,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description"]);
 }
 
-module.exports = { get, add, search, remove, update }
+module.exports = { get, add, search, remove, updateNotice }
