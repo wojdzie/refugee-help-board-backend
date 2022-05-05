@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-//const basicAuth = require('./app/auth/basic-auth');
+const basicAuth = require('./app/auth/basic-auth');
 const errorHandler = require('./app/error/error-handler');
 
 const db = require('./db');

@@ -9,7 +9,8 @@ const items = [
 module.exports = { getFiltered, getAll }
 
 async function getFiltered(tag) {
-    return items.filter(item => item.tags.includes(tag));
+    //return items.filter(item => item.tags.includes(tag));
+    return items.filter(item => item.tags.some(o => tag.includes(o)))
 }
 
 async function getAll() {
