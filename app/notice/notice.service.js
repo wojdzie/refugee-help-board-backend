@@ -1,11 +1,11 @@
 const _ = require('lodash');
 const Notice = require('./notice');
 
-function get(filter) {
+async function get(filter) {
     return Notice.find(filter);
 }
 
-function search(text) {
+async function search(text) {
     return Notice.find(
             { $text: { $search: text}}, 
             { score: { $meta: "textScore" }}
@@ -14,7 +14,7 @@ function search(text) {
         );
 }
 
-function add(data, user) {
+async function add(data, user) {
     try {
         data = validateData(data);
     } catch (err) {
