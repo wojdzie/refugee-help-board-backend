@@ -33,6 +33,49 @@ async function add(data, user) {
     return notice.save(notice);
 }
 
+async function remove(data, user) {
+    try {
+        data = validateData(data);
+    } catch (err) {
+        throw {
+            type: "invalid-input",
+            message: err.message
+        }
+    }
+
+    Notice.find({ author: user._id, type: data.type, description: data.description}, function (err, docs) {
+        //rzuca null narazie. Do zmiany
+        if(docs.length === 0){
+            console.log(err);
+        }else if(err){
+            console.log(err);
+        }else{
+            console.log(docs);
+        }
+        
+        Notice.deleteOne({ author: user._id, type: data.type, description: data.description}, function(err, result){
+            if(err){
+                console.log(err);
+            }else{
+                 return result;
+             }
+          });
+    });
+}
+
+async function update(data, user){
+    try {
+        data = validateData(data);
+    } catch (err) {
+        throw {
+            type: "invalid-input",
+            message: err.message
+        }
+    }
+
+    
+}
+
 function validateData(data) {
     if (!_.isPlainObject(data))
         throw {
@@ -55,4 +98,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description"]);
 }
 
-module.exports = { get, add, search }
+module.exports = { get, add, search, remove, update }
