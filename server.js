@@ -14,9 +14,11 @@ app.use(bodyParser.json());
 
 app.use(cors());
 app.use(basicAuth);
-app.use(errorHandler);
 
 app.use('/user', require('./app/user/user.controller'));
+app.use('/notice', require('./app/notice/notice.controller'));
+
+app.use(errorHandler);
 
 const port = 8080;
 app.listen(port, () => {
