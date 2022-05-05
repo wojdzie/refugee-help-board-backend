@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 const Notice = new Schema ({
     author: { type: String, required: true },
     type: { type: String, required: true },
-    description: { type: String, required: true}
+    description: { type: String, required: true },
+    tags: [{tag: String}]
 });
 Notice.index({description: "text"});
 
