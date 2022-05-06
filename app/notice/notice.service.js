@@ -27,7 +27,8 @@ async function add(data, user) {
     notice = new Notice({
         author: user._id,
         type: data.type,
-        description: data.description
+        description: data.description,
+        tags: data.tags
     });
 
     return notice.save(notice);
@@ -60,7 +61,7 @@ function validateData(data) {
         throw {
             message: "Description is expected to be a string and must not be empty"
         }
-    return _.pick(data, ["type", "description"]);
+    return _.pick(data, ["type", "description", "tags"]);
 }
 
 module.exports = { get, add, search, remove, updateNotice }

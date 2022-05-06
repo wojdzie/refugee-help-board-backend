@@ -9,8 +9,13 @@ router.get('/filterAll', getAll);
 module.exports = router
 
 function getFiltered(req, res, next) {
-    filterService.getFiltered(req.query.tag)
-        .then(item => item ? res.json(item) : res.status(204).end())
+    if(req.query.tags === null) {
+        req.query.tags = [];
+    } else if (typeof req.query.tags === "string") {
+        req.query.tags = [req.query.tags];
+    }
+    filterService.getFiltered(req.query)
+        .then(item => res.json(item))
         .catch(err => next(err));
 }
 
