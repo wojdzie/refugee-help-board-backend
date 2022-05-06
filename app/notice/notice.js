@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const Notice = new Schema ({
+const Notice = new Schema({
     author: { type: String, required: true },
     type: { type: String, required: true },
     description: { type: String, required: true },
-    tags: [{tag: String}]
+    tags: [{ type: String }]
 });
-Notice.index({description: "text"});
+Notice.index({ description: "text" });
 
 module.exports = mongoose.model('Notice', Notice);
