@@ -33,6 +33,14 @@ async function add(data, user) {
     return notice.save(notice);
 }
 
+function remove(notice_id) {
+    return Notice.findByIdAndRemove(notice_id, { useFindAndModify: false });
+}
+
+function updateNotice(notice_id, data){
+    return Notice.findByIdAndUpdate(notice_id, data, { useFindAndModify: false });
+}
+
 function validateData(data) {
     if (!_.isPlainObject(data))
         throw {
@@ -55,4 +63,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description"]);
 }
 
-module.exports = { get, add, search }
+module.exports = { get, add, search, remove, updateNotice }

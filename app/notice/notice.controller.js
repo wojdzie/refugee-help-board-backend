@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const noticeService = require('./notice.service');
 const _ = require('lodash');
+const notice = require('./notice');
+const { update } = require('lodash');
 
 router.post('/', add);
 router.get('/', get);
 router.get('/search', search);
+router.delete('/:id', remove);
+router.patch('/:id', updateNotice);
 
 module.exports = router;
 
@@ -39,4 +43,27 @@ function add(req, res, next) {
                 });
             next(err);
         });
+}
+
+function remove(req, res, next) {
+    const noticeID = req.params.id;
+    noticeService.remove(noticeID)
+    .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
+    .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
+}
+
+function updateNotice(req, res) {
+    if (!req.body) {
+        res.status(400).send({ message: "Content can not be empty!" });
+        return;
+    }
+    if(req.body.type){
+        return res
+                .status(400).send({message:'Can only edit description'})
+    }
+    
+    const noticeID = req.params.id;
+    noticeService.updateNotice(noticeID, req.body)
+        .then(data => res.send({ message: `Notice with id = ${noticeID} was updated successfully`}))
+        .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${noticeID}` }));
 }
