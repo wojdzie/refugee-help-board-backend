@@ -1,7 +1,12 @@
 const _ = require('lodash');
+const moment = require("moment");
 const Notice = require('./notice');
 
-async function get(filter) {
+async function get(filter, include_stale = false) {
+    if (!include_stale)
+        filter.updatedAt = {
+            "$gte": moment().subtract(2, 'months').toDate()
+        }
     return Notice.find(filter);
 }
 
@@ -10,7 +15,7 @@ async function search(text) {
             { $text: { $search: text}}, 
             { score: { $meta: "textScore" }}
         ).sort(
-            { score: { $meta: "textScore" }}
+            { score: { $meta: "textScore" }, updatedAt: -1}
         );
 }
 

@@ -16,7 +16,7 @@ function get(req, res, next) {
     if (!req.body) {
         filter = {};
     }
-    noticeService.get(filter)
+    noticeService.get(filter, _.has(req.query, "stale"))
         .then(notices => res.send(notices))
         .catch(err => next(err));
 }
