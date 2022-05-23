@@ -8,6 +8,7 @@ router.get('/', get);
 router.get('/search', search);
 router.delete('/:id', remove);
 router.patch('/:id', updateNotice);
+router.patch('/close/:id', close);
 
 module.exports = router;
 
@@ -46,8 +47,8 @@ function add(req, res, next) {
 function remove(req, res, next) {
     const noticeID = req.params.id;
     noticeService.remove(noticeID)
-    .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
-    .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
+        .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
+        .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
 }
 
 function updateNotice(req, res) {
@@ -63,4 +64,15 @@ function updateNotice(req, res) {
     noticeService.updateNotice(noticeID, req.body)
         .then(data => res.send({ message: `Notice with id = ${noticeID} was updated successfully`}))
         .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${noticeID}` }));
+}
+
+async function close(req, res, next) {
+    const notice = (await noticeService.get({ _id: req.params.id}, true))[0];
+    if (!notice)
+        return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
+    if (notice.author != req.user._id)
+        return res.status(401).send({ message: `You can only close your own notices` });
+    noticeService.close(notice._id)
+        .then(data => res.send({ message: `Notice with id = ${req.params.id} was closed successfully` }))
+        .catch(err => res.status(500).send({ message: `Error closing Notice with id = ${req.params.id}` }));
 }

@@ -3,11 +3,17 @@ const moment = require("moment");
 const Notice = require('./notice');
 
 async function get(filter, include_stale = false) {
-    if (!include_stale)
+    //by default return only opened notices 
+    if (!_.has(filter, "closed"))
+        filter.closed = false;
+
+    //by default do not include stale notices unless requested specifically
+    //(also if one tries to get closed notices, there's no reason not to include stale ones)
+    if (!include_stale || filter.closed)
         filter.updatedAt = {
             "$gte": moment().subtract(2, 'months').toDate()
         }
-    return Notice.find(filter);
+    return await Notice.find(filter);
 }
 
 async function search(text) {
@@ -15,7 +21,7 @@ async function search(text) {
             { $text: { $search: text}}, 
             { score: { $meta: "textScore" }}
         ).sort(
-            { score: { $meta: "textScore" }, updatedAt: -1}
+            { closed: 1, score: { $meta: "textScore" }, updatedAt: -1}
         );
 }
 
@@ -36,7 +42,7 @@ async function add(data, user) {
         tags: data.tags
     });
 
-    return Notice.save(notice);
+    return notice.save(notice);
 }
 
 function getNotice(user, element) {
@@ -72,6 +78,10 @@ function updateNotice(notice_id, data){
     return Notice.findByIdAndUpdate(notice_id, data, { useFindAndModify: false });
 }
 
+function close(notice_id) {
+    return Notice.findByIdAndUpdate(notice_id, { closed: true }, { useFindAndModify: false });
+}
+
 function validateData(data) {
     if (!_.isPlainObject(data))
         throw {
@@ -94,4 +104,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description", "tags"]);
 }
 
-module.exports = { get, add, addAll, search, remove, updateNotice }
+module.exports = { get, add, addAll, search, remove, updateNotice, close }

@@ -5,7 +5,8 @@ const Notice = new Schema({
     author: { type: String, required: true },
     type: { type: String, required: true },
     description: { type: String, required: true },
-    tags: [{ type: String }]
+    tags: [{ type: String }],
+    closed: { type: Boolean, default: false }
 });
 Notice.index({ description: "text" });
 Notice.set("timestamps", true);
