@@ -10,7 +10,7 @@ async function get(filter, include_stale = false, include_closed = false) {
         filter.updatedAt = {
             "$gte": moment().subtract(2, 'months').toDate()
         }
-        
+
     return await Notice.find(filter);
 }
 
@@ -72,12 +72,12 @@ function remove(notice_id) {
     return Notice.findByIdAndRemove(notice_id, { useFindAndModify: false });
 }
 
-function updateNotice(notice_id, data){
+function update(notice_id, data){
     return Notice.findByIdAndUpdate(notice_id, data, { useFindAndModify: false });
 }
 
 function close(notice_id) {
-    return Notice.findByIdAndUpdate(notice_id, { closed: true }, { useFindAndModify: false });
+    return Notice.findByIdAndUpdate(notice_id, { closed: true, closedAt: Date.now() }, { useFindAndModify: false });
 }
 
 function validateData(data) {
@@ -102,4 +102,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description", "tags"]);
 }
 
-module.exports = { get, add, addAll, search, remove, updateNotice, close }
+module.exports = { get, add, addAll, search, remove, update, close }
