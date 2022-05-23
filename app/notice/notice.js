@@ -8,5 +8,6 @@ const Notice = new Schema({
     tags: [{ type: String }]
 });
 Notice.index({ description: "text" });
+Notice.set("timestamps", true);
 
 module.exports = mongoose.model('Notice', Notice);
