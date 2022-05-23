@@ -17,7 +17,7 @@ function get(req, res, next) {
     if (!req.body) {
         filter = {};
     }
-    noticeService.get(filter, _.has(req.query, "stale"))
+    noticeService.get(filter, _.has(req.query, "stale"), _.has(req.query, "closed"))
         .then(notices => res.send(notices))
         .catch(err => next(err));
 }
@@ -67,7 +67,7 @@ function updateNotice(req, res) {
 }
 
 async function close(req, res, next) {
-    const notice = (await noticeService.get({ _id: req.params.id}, true))[0];
+    const notice = (await noticeService.get({ _id: req.params.id}, true, true))[0];
     if (!notice)
         return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
     if (notice.author != req.user._id)

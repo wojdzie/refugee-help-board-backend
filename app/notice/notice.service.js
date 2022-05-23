@@ -2,17 +2,15 @@ const _ = require('lodash');
 const moment = require("moment");
 const Notice = require('./notice');
 
-async function get(filter, include_stale = false) {
-    //by default return only opened notices 
-    if (!_.has(filter, "closed"))
+async function get(filter, include_stale = false, include_closed = false) {
+    if (!include_closed)
         filter.closed = false;
 
-    //by default do not include stale notices unless requested specifically
-    //(also if one tries to get closed notices, there's no reason not to include stale ones)
-    if (!include_stale || filter.closed)
+    if (!include_stale)
         filter.updatedAt = {
             "$gte": moment().subtract(2, 'months').toDate()
         }
+        
     return await Notice.find(filter);
 }
 
