@@ -4,3 +4,7 @@ node_modules
 
 # IDE
 .idea
+.vs
+
+#db
+.DS_Store
