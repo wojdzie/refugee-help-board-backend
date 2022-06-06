@@ -4,12 +4,17 @@ const noticeService = require('./notice.service');
 const _ = require('lodash');
 const notice = require('./notice');
 const { update } = require('lodash');
+const formidable = require('formidable');
 
 router.post('/', add);
 router.get('/', get);
 router.get('/search', search);
 router.delete('/:id', remove);
 router.patch('/:id', updateNotice);
+
+router.post("/import/csv", importCSV);
+router.post("/import/xls", importXLS);
+router.post("/import/json", importJSON);
 
 module.exports = router;
 
@@ -66,4 +71,16 @@ function updateNotice(req, res) {
     noticeService.updateNotice(noticeID, req.body)
         .then(data => res.send({ message: `Notice with id = ${noticeID} was updated successfully`}))
         .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${noticeID}` }));
+}
+
+function importCSV(req, res) {
+    return res.status(400);
+}
+
+function importXLS(req, res) {
+    return res.status(400);
+}
+
+function importJSON(req, res) {
+    return res.status(400);
 }
