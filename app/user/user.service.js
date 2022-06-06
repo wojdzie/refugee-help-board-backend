@@ -1,26 +1,45 @@
 const User = require('./user');
+const _ = require('lodash');
 
-exports.authenticate = (data) => {
-    const users = User.find({login: data.login, password: data.password},
-        (err, data) => {
-            return data.map(x => x);
-        });
-    if (users.length === 0 || users.length > 1) {
-        return "Login failed!";
-    }
-
-    return btoa(users[0].login + ":" + users[0].password);
+exports.authenticate = async ({ login, password }) => {
+    const user = await User.findOne({ login: login, password: password });
+    if (user)
+        return user;
 }
+
+exports.login = async ({ login, password }) => {
+    const user = await User.findOne({ login: login, password: password });
+    if (user) {
+        return {
+            "token": "Basic " + btoa(user.login + ":" + user.password)
+        };
+    }
+}
+
 exports.findUserById = (id) => {
     return User.findById(id);
 }
 
-exports.findUsers = () => {
-    return User.find();
+exports.findUsers = (filter) => {
+    //omitting password in the filter as it's a potential vulnerability
+    filter = _.omit(filter, ["password"]);
+    return User.find(filter, {password: false});
 }
 
-exports.createUser = (data) => {
-    const user = new User ({
+exports.createUser = async (data) => {
+    if (!_.has(data, "login") || 
+        !_.has(data, "password"))
+        throw {
+            type: "incomplete-data"
+        }
+
+    let user = await User.findOne({login: data.login});
+    if (user)
+        throw {
+            type: "login-exists"
+        }
+
+    user = new User ({
         login: data.login,
         password: data.password,
         email: data.email,
