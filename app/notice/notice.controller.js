@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const noticeService = require('./notice.service');
 const _ = require('lodash');
+const notice = require('./notice');
 
 router.post('/', add);
 router.get('/', get);
 router.get('/search', search);
 router.delete('/:id', remove);
-router.patch('/:id', updateNotice);
+router.patch('/:id', update);
+router.patch('/close/:id', close);
 
 module.exports = router;
 
@@ -16,7 +18,7 @@ function get(req, res, next) {
     if (!req.body) {
         filter = {};
     }
-    noticeService.get(filter)
+    noticeService.get(filter, _.has(req.query, "stale"), _.has(req.query, "closed"))
         .then(notices => res.send(notices))
         .catch(err => next(err));
 }
@@ -46,21 +48,40 @@ function add(req, res, next) {
 function remove(req, res, next) {
     const noticeID = req.params.id;
     noticeService.remove(noticeID)
-    .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
-    .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
+        .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
+        .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
 }
 
-function updateNotice(req, res) {
-    if (!req.body) {
-        res.status(400).send({ message: "Content can not be empty!" });
-        return;
-    }
-    if(req.body.type){
-        return res.status(400).send({message:'Can only edit description'})
-    }
+async function update(req, res) {
+    const notice = await noticeService.getById(req.params.id);
+    if (!notice)
+        return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
+    if (notice.author != req.user._id)
+        return res.status(401).send({ message: `You can only edit your own notices` });
+
+    if (!req.body)
+        return res.status(400).send({ message: "Content can not be empty!" });
+    if (_.has(req.body, "type"))
+        return res.status(400).send({ message:'type can not be edited' })
+    if (_.has(req.body, "closed") || _.has(req.body, "closedAt"))
+        return res.status(400).send({ message:'closed or closedAt can not be edited' })
     
-    const noticeID = req.params.id;
-    noticeService.updateNotice(noticeID, req.body)
-        .then(data => res.send({ message: `Notice with id = ${noticeID} was updated successfully`}))
-        .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${noticeID}` }));
+    noticeService.update(notice._id, req.body)
+        .then(data => res.send({ message: `Notice with id = ${req.params.id} was updated successfully`}))
+        .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${req.params.id}` }));
+}
+
+async function close(req, res, next) {
+    const notice = (await noticeService.get({ _id: req.params.id}, true, true))[0];
+    if (!notice)
+        return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
+    if (notice.author != req.user._id)
+        return res.status(401).send({ message: `You can only close your own notices` });
+
+    if (notice.closed)
+        return res.status(400).send({ message: `Notice with id = ${req.params.id} is already closed` });
+
+    noticeService.close(notice._id)
+        .then(data => res.send({ message: `Notice with id = ${req.params.id} was closed successfully` }))
+        .catch(err => res.status(500).send({ message: `Error closing Notice with id = ${req.params.id}` }));
 }

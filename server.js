@@ -19,6 +19,7 @@ app.use('/user', require('./app/user/user.controller'));
 app.use('/notice', require('./app/notice/notice.controller'));
 app.use('/import', require('./app/import/import.controller'));
 app.use('/filter', require('./app/filter/filter.controller'));
+app.use('/report', require('./app/report/report.controller'));
 
 app.use(errorHandler);
 
