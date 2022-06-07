@@ -3,8 +3,12 @@ const router = express.Router();
 const noticeService = require('./notice.service');
 const _ = require('lodash');
 const notice = require('./notice');
-const { update } = require('lodash');
+const { update, join} = require('lodash');
 const formidable = require('formidable');
+const fs = require('fs');
+const path = require('path');
+const csvParser = require('csv-parser');
+const xlsx = require('xlsx');
 
 router.post('/', add);
 router.get('/', get);
@@ -63,8 +67,7 @@ function updateNotice(req, res) {
         return;
     }
     if(req.body.type){
-        return res
-                .status(400).send({message:'Can only edit description'})
+        return res.status(400).send({message:'Can only edit description'})
     }
     
     const noticeID = req.params.id;
@@ -73,14 +76,63 @@ function updateNotice(req, res) {
         .catch(err => res.status(500).send({ message: `Error updating Notice with id = ${noticeID}` }));
 }
 
-function importCSV(req, res) {
-    return res.status(400);
+async function importCSV(req, res) {
+    let fileName = await importFile(req, res, "csv");
+    let notices = [];
+    await new Promise((resolve, reject) => {
+        fs.createReadStream(fileName).pipe(csvParser())
+            .on("data", (data) => notices.push(data))
+            .on("end", () => resolve());
+    });
+    await noticeService.addAll(notices, req.user);
+    return res.send({ message: 'CSV file imported'});
 }
 
-function importXLS(req, res) {
-    return res.status(400);
+async function importXLS(req, res) {
+    let fileName = await importFile(req, res, "xls");
+    const workbook = xlsx.readFile(fileName);
+    const sheet_name_list = workbook.SheetNames;
+    const notices = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+    await noticeService.addAll(notices, req.user);
+    return res.send({ message: 'XLS file imported'});
 }
 
-function importJSON(req, res) {
-    return res.status(400);
+async function importJSON(req, res) {
+    let fileName = await importFile(req, res, "json");
+    let rawData = fs.readFileSync(fileName);
+    let notices = JSON.parse(rawData);
+    await noticeService.addAll(notices, req.user);
+    return res.send({ message: 'JSON file imported'});
+}
+
+const isFileValid = (requiredFileType, file) => {
+    const type = file.originalFilename.split(".").pop();
+    return type.localeCompare(requiredFileType, undefined, { sensitivity: 'accent' }) === 0;
+};
+
+async function importFile(req, res, fileType) {
+    let form = new formidable.IncomingForm();
+    const uploadFolder = path.join(__dirname, "/../../imports");
+    return await new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+            if (err) {
+                console.log('Error parsing the files');
+                reject(err);
+                return res.status(400).send({message: 'Error parsing the files'})
+            }
+            const file = files.import;
+            const isValid = isFileValid(fileType, file);
+            const fileName = encodeURIComponent(file.originalFilename.replace(/\s/g, '_'));
+            if (!isValid) {
+                return res.status(400).send({message: 'The file type is not a valid type'});
+            }
+
+            if (!file.length) {
+                fs.rename(file.filepath, path.join(uploadFolder, fileName), () => {
+                    console.log('File renamed!');
+                });
+            }
+            resolve(path.join(uploadFolder, fileName));
+        });
+    });
 }

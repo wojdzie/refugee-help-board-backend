@@ -31,7 +31,32 @@ async function add(data, user) {
         tags: data.tags
     });
 
-    return notice.save(notice);
+    return Notice.save(notice);
+}
+
+function getNotice(user, element) {
+    return new Notice({
+        author: user._id,
+        type: element.type,
+        description: element.description,
+        tags: element.tags
+    });
+}
+
+async function addAll(data, user) {
+    let notices = [];
+    try {
+        for (let element of data) {
+            let notice = getNotice(user, element);
+            notices.push(notice);
+        }
+    } catch (err) {
+        throw {
+            type: "invalid-input",
+            message: err.message
+        }
+    }
+    return Notice.insertMany(notices);
 }
 
 function remove(notice_id) {
@@ -64,4 +89,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description", "tags"]);
 }
 
-module.exports = { get, add, search, remove, updateNotice }
+module.exports = { get, add, addAll, search, remove, updateNotice }
