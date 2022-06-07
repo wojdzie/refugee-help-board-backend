@@ -14,6 +14,10 @@ async function get(filter, include_stale = false, include_closed = false) {
     return await Notice.find(filter);
 }
 
+async function getById(id) {
+    return await Notice.findById(id);
+}
+
 async function search(text) {
     return Notice.find(
             { $text: { $search: text}}, 
@@ -102,4 +106,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description", "tags"]);
 }
 
-module.exports = { get, add, addAll, search, remove, update, close }
+module.exports = { get, getById, add, addAll, search, remove, update, close }

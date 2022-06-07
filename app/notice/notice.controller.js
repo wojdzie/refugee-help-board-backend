@@ -53,7 +53,7 @@ function remove(req, res, next) {
 }
 
 async function update(req, res) {
-    const notice = (await noticeService.get({ _id: req.params.id}, true, true))[0];
+    const notice = await noticeService.getById(req.params.id);
     if (!notice)
         return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
     if (notice.author != req.user._id)
