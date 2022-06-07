@@ -1,3 +1,7 @@
+const path = require("path");
+const fs = require("fs");
+const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../config.json")));
+
 const _ = require('lodash');
 const moment = require("moment");
 const Notice = require('./notice');
@@ -8,7 +12,7 @@ async function get(filter, include_stale = false, include_closed = false) {
 
     if (!include_stale)
         filter.updatedAt = {
-            "$gte": moment().subtract(2, 'months').toDate()
+            "$gte": moment().subtract(config.notice.stale_period.value, config.notice.stale_period.unit).toDate()
         }
 
     return await Notice.find(filter);
