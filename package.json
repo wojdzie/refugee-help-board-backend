@@ -18,9 +18,6 @@
     "lodash": "^4.17.21",
     "mongodb": "^4.5.0",
     "mongoose": "^6.3.1",
-    "node-xlsx": "^0.21.0",
-    "simple-excel-reader": "^1.0.6",
-    "xls-parser": "^3.1.0",
     "xlsx": "^0.18.5"
   }
 }

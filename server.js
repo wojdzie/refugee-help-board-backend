@@ -17,6 +17,7 @@ app.use(basicAuth);
 
 app.use('/user', require('./app/user/user.controller'));
 app.use('/notice', require('./app/notice/notice.controller'));
+app.use('/import', require('./app/import/import.controller'));
 app.use('/filter', require('./app/filter/filter.controller'));
 
 app.use(errorHandler);
