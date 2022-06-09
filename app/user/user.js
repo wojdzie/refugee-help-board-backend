@@ -9,5 +9,10 @@ const User = new Schema ({
     firstName: { type: String },
     lastName: { type: String }
 });
+User.index({
+    lastName: "text",
+    firstName: "text",
+    email: "text"
+});
 
 module.exports = mongoose.model('User', User);

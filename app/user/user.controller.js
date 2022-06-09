@@ -5,6 +5,7 @@ const _ = require('lodash');
 
 router.post('/authenticate', authenticate);
 router.get('/', findUsers);
+router.get('/search', searchUsers);
 router.post('/register', createUser);
 router.post('/login', login);
 router.get('/:id', findUser);
@@ -27,13 +28,19 @@ function findUser(req, res) {
 }
 
 function findUsers(req, res) {
-    let filter = req.body;
-    if (!req.body) {
-        filter = {};
-    }
-    userService.findUsers(filter)
+    userService.findUsers({})
         .then(data => res.send(data))
         .catch(err => res.status(500).send({ message: `Error fetching the users` }));
+}
+
+function searchUsers(req, res, next) {
+    const text = _.get(req, "query.q");
+    if (typeof text !== "string" || text.length === 0)
+        return res.status(400).send({message: "Search query is required to perform a search. It is expected in the query parameter 'q'."})
+
+    userService.searchUsers(text)
+        .then(users => res.send(users))
+        .catch(err => next(err));
 }
 
 function createUser(req, res) {

@@ -14,19 +14,15 @@ router.patch('/close/:id', close);
 module.exports = router;
 
 function get(req, res, next) {
-    let filter = req.body;
-    if (!req.body) {
-        filter = {};
-    }
-    noticeService.get(filter, _.has(req.query, "stale"), _.has(req.query, "closed"))
+    noticeService.get({}, _.has(req.query, "stale"), _.has(req.query, "closed"))
         .then(notices => res.send(notices))
         .catch(err => next(err));
 }
 
 function search(req, res, next) {
-    const text = _.get(req, "body.text");
+    const text = _.get(req, "query.q");
     if (typeof text !== "string" || text.length === 0)
-        return res.status(400).send({message: "Text is required to perform a search. It is expected in a 'text' field of a request body."})
+        return res.status(400).send({message: "Search query is required to perform a search. It is expected in the query parameter 'q'."})
 
     noticeService.search(text)
         .then(notices => res.send(notices))
