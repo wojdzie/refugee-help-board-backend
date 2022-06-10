@@ -26,6 +26,15 @@ exports.findUsers = (filter) => {
     return User.find(filter, {password: false});
 }
 
+exports.searchUsers = (text) => {
+    return User.find(
+            { $text: { $search: text}}, 
+            { score: { $meta: "textScore" }}
+        ).sort(
+            { closed: 1, score: { $meta: "textScore" }, updatedAt: -1}
+        );
+}
+
 exports.createUser = async (data) => {
     if (!_.has(data, "login") || 
         !_.has(data, "password"))

@@ -1,8 +1,25 @@
+const path = require("path");
+const fs = require("fs");
+const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../config.json")));
+
 const _ = require('lodash');
+const moment = require("moment");
 const Notice = require('./notice');
 
-async function get(filter) {
-    return Notice.find(filter);
+async function get(filter, include_stale = false, include_closed = false) {
+    if (!include_closed)
+        filter.closed = false;
+
+    if (!include_stale)
+        filter.updatedAt = {
+            "$gte": moment().subtract(config.notice.stale_period.value, config.notice.stale_period.unit).toDate()
+        }
+
+    return await Notice.find(filter);
+}
+
+async function getById(id) {
+    return await Notice.findById(id);
 }
 
 async function search(text) {
@@ -10,7 +27,7 @@ async function search(text) {
             { $text: { $search: text}}, 
             { score: { $meta: "textScore" }}
         ).sort(
-            { score: { $meta: "textScore" }}
+            { closed: 1, score: { $meta: "textScore" }, updatedAt: -1}
         );
 }
 
@@ -28,18 +45,48 @@ async function add(data, user) {
         author: user._id,
         type: data.type,
         description: data.description,
-        tags: data.tags
+        tags: data.tags,
+        creationData: Date.now()
     });
 
     return notice.save(notice);
+}
+
+function getNotice(user, element) {
+    return new Notice({
+        author: user._id,
+        type: element.type,
+        description: element.description,
+        tags: element.tags
+    });
+}
+
+async function addAll(data, user) {
+    let notices = [];
+    try {
+        for (let element of data) {
+            let notice = getNotice(user, element);
+            notices.push(notice);
+        }
+    } catch (err) {
+        throw {
+            type: "invalid-input",
+            message: err.message
+        }
+    }
+    return Notice.insertMany(notices);
 }
 
 function remove(notice_id) {
     return Notice.findByIdAndRemove(notice_id, { useFindAndModify: false });
 }
 
-function updateNotice(notice_id, data){
+function update(notice_id, data){
     return Notice.findByIdAndUpdate(notice_id, data, { useFindAndModify: false });
+}
+
+function close(notice_id) {
+    return Notice.findByIdAndUpdate(notice_id, { closed: true, closedAt: Date.now() }, { useFindAndModify: false });
 }
 
 function validateData(data) {
@@ -64,4 +111,4 @@ function validateData(data) {
     return _.pick(data, ["type", "description", "tags"]);
 }
 
-module.exports = { get, add, search, remove, updateNotice }
+module.exports = { get, getById, add, addAll, search, remove, update, close }

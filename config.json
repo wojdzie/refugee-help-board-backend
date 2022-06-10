@@ -1,0 +1,8 @@
+{
+	"notice": {
+		"stale_period": {
+			"unit": "month",
+			"value": 2
+		}
+	}
+}

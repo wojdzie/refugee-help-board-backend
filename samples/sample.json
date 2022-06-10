@@ -1,0 +1,14 @@
+[
+  {
+    "author": "Michal Pol",
+    "type": "request",
+    "description": "Sample request notice description JSON",
+    "tags": ["help", "request", "sample"]
+  },
+  {
+    "author": "Adam Malysz",
+    "type": "offer",
+    "description": "Sample offer notice description JSON",
+  "tags": ["help", "offer", "sample"]
+  }
+]

@@ -2,10 +2,16 @@ const userService = require('../user/user.service');
 
 module.exports = basicAuth;
 
+const no_auth_paths = [
+    "/user/authenticate",
+    "/user/register",
+    "/user/login",
+    "/report/overview",
+    "/report/periodic"
+]
+
 async function basicAuth(req, res, next) {
-    if (req.path === '/user/authenticate' ||
-        req.path === '/user/register' ||
-        req.path === '/user/login') {
+    if (no_auth_paths.includes(req.path)) {
         return next();
     }
 
