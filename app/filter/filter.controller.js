@@ -3,6 +3,7 @@ const router = express.Router();
 const filterService = require('./filter.service');
 
 router.get('/filterTags', getFiltered);
+router.get('/filterPersonal', getPersonal);
 router.get('/filterAll', getAll);
 
 
@@ -15,6 +16,12 @@ function getFiltered(req, res, next) {
         req.query.tags = [req.query.tags];
     }
     filterService.getFiltered(req.query)
+        .then(item => res.json(item))
+        .catch(err => next(err));
+}
+
+function getPersonal(req, res, next) {
+    filterService.getPersonal(req.user)
         .then(item => res.json(item))
         .catch(err => next(err));
 }
