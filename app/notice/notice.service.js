@@ -45,7 +45,8 @@ async function add(data, user) {
         author: user._id,
         type: data.type,
         description: data.description,
-        tags: data.tags
+        tags: data.tags,
+        creationData: Date.now()
     });
 
     return notice.save(notice);

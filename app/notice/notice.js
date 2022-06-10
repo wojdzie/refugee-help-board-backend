@@ -6,6 +6,7 @@ const Notice = new Schema({
     type: { type: String, required: true },
     description: { type: String, required: true },
     tags: [{ type: String }],
+    creationData: {type: Date},
     closed: { type: Boolean, default: false },
     closedAt: { type: Date }
 });
