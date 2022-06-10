@@ -9,6 +9,12 @@ const db = require('./db');
 
 const app = express();
 
+app.use((req ,res, next) => {
+    console.log(req.url);
+
+    next();
+})
+
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 

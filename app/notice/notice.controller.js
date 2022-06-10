@@ -43,6 +43,7 @@ function add(req, res, next) {
 
 function remove(req, res, next) {
     const noticeID = req.params.id;
+    console.log(noticeID);
     noticeService.remove(noticeID)
         .then(data => res.send({ message: `Notice with id = ${noticeID} was deleted successfully` }))
         .catch(err => res.status(500).send({ message: `Error deleting Notice with id = ${noticeID}` }));
@@ -52,7 +53,7 @@ async function update(req, res) {
     const notice = await noticeService.getById(req.params.id);
     if (!notice)
         return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
-    if (notice.author != req.user._id)
+    if (notice.author != req.user.login)
         return res.status(401).send({ message: `You can only edit your own notices` });
 
     if (!req.body)
@@ -70,14 +71,15 @@ async function update(req, res) {
 async function close(req, res, next) {
     const notice = (await noticeService.get({ _id: req.params.id}, true, true))[0];
     if (!notice)
-        return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
-    if (notice.author != req.user._id)
-        return res.status(401).send({ message: `You can only close your own notices` });
+    return res.status(400).send({ message: `Notice with id = ${req.params.id} was not found` });
 
+    if (notice.author != req.user.login)
+    return res.status(401).send({ message: `You can only close your own notices` });
+    
     if (notice.closed)
-        return res.status(400).send({ message: `Notice with id = ${req.params.id} is already closed` });
+    return res.status(400).send({ message: `Notice with id = ${req.params.id} is already closed` });
 
     noticeService.close(notice._id)
-        .then(data => res.send({ message: `Notice with id = ${req.params.id} was closed successfully` }))
-        .catch(err => res.status(500).send({ message: `Error closing Notice with id = ${req.params.id}` }));
+    .then(data => res.send({ message: `Notice with id = ${req.params.id} was closed successfully` }))
+    .catch(err => res.status(500).send({ message: `Error closing Notice with id = ${req.params.id}` }));
 }
