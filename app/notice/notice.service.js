@@ -42,7 +42,7 @@ async function add(data, user) {
     }
 
     notice = new Notice({
-        author: user._id,
+        author: user.login,
         type: data.type,
         description: data.description,
         tags: data.tags,

@@ -1,9 +1,13 @@
 const Notice = require('../notice/notice');
 
-module.exports = { getFiltered, getAll }
+module.exports = { getFiltered, getPersonal, getAll }
 
-async function getFiltered({ type, tags = [] }) {
-    return Notice.find({type, tags: {$in: tags}})//.find(item => item.tags.some(o => tags.includes(o)))
+async function getFiltered({ type, tags = [] }, include_closed = false) {
+    return Notice.find({type, tags: {$in: tags}, closed: include_closed})
+}
+
+async function getPersonal(user) {
+    return Notice.find({author: user.login});
 }
 
 async function getAll() {
